@@ -2,17 +2,21 @@ from __future__ import annotations
 
 
 class Animal:
-    alive = []
+    alive: list["Animal"] = []
 
-    def __init__(self, name: str, health: int = 100) -> None:
+    def __init__(self,
+                 name: str,
+                 health: int = 100
+                 ) -> None:
+
         self.health = health
         self.name = name
         self.hidden = False
-        self.__class__.alive.append(self)
+        Animal.alive.append(self)
 
     def die(self) -> None:
-        if self in self.__class__.alive:
-            self.__class__.alive.remove(self)
+        if self in Animal.alive:
+            Animal.alive.remove(self)
 
     def __repr__(self) -> str:
         return (
@@ -27,9 +31,9 @@ class Herbivore(Animal):
 
 
 class Carnivore(Animal):
-    def bite(self, prey: "Animal") -> None:
-        if isinstance(prey, Carnivore) or prey.hidden:
+    def bite(self, prey: "Herbivore") -> None:
+        if not isinstance(prey, Herbivore) or prey.hidden:
             return
-        prey.health -= 50
-        if prey.health <= 0:
+        prey.health = max(prey.health - 50, 0)
+        if prey.health == 0:
             prey.die()
